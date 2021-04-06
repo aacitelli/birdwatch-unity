@@ -8,13 +8,13 @@
 
 ## Features
 - Player Freecam Movement
-    - I used a basic free one off the internet [here](https://gamedevgary.itch.io/flycamcontroller-unity?download)
+    - I used a basic free one off the internet [here](https://gamedevgary.itch.io/flycamcontroller-unity?download).
     - Made a few changes:
         - Made vertical movement relative to world instead of camera
         - Tweaked values
 - Chunk-Based Heightmap Generation & Rendering
-    - Following tutorial [here](https://gamedevacademy.org/complete-guide-to-procedural-level-generation-in-unity-part-1/)
+    - Followed a tutorial [here](https://gamedevacademy.org/complete-guide-to-procedural-level-generation-in-unity-part-1/).
 
 ## Timing
 - 4/6/20
-    - 12pm - 12:30pm (Player Movement)
+    - 12pm - 12:30pm (Player Movement, Heightmap Generation)
