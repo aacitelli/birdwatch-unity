@@ -134,7 +134,17 @@ MonoBehaviour:
   meshFilter: {fileID: 6322903469593028108}
   meshCollider: {fileID: 6322903469593028110}
   mapScale: 5
-  heightMultiplier: 3
+  waves:
+  - seed: 132131
+    frequency: 1
+    amplitude: 1
+  - seed: 1231231
+    frequency: 0.5
+    amplitude: 2
+  - seed: 1231231
+    frequency: 0.25
+    amplitude: 4
+  heightMultiplier: 10
   heightCurve:
     serializedVersion: 2
     m_Curve:
@@ -149,12 +159,12 @@ MonoBehaviour:
       outWeight: 0
     - serializedVersion: 3
       time: 0.39988258
-      value: 0.015713125
-      inSlope: 0.1652332
-      outSlope: 0.1652332
+      value: -0.0007968843
+      inSlope: 0.041740093
+      outSlope: 0.041740093
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.16642195
+      inWeight: 0.14384857
       outWeight: 0.33333334
     - serializedVersion: 3
       time: 1
