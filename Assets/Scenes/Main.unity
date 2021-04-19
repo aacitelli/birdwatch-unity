@@ -248,6 +248,8 @@ MonoBehaviour:
   mapWidthInTiles: 10
   mapDepthInTiles: 10
   tilePrefab: {fileID: 6322903469593028105, guid: 2f020166ef04cae4bad76b88ada1ac75, type: 3}
+  player: {fileID: 1782234108}
+  generateRadius: 8
 --- !u!4 &1240365349
 Transform:
   m_ObjectHideFlags: 0
@@ -272,6 +274,10 @@ PrefabInstance:
     - target: {fileID: 2731847666348560378, guid: 58d784a71e1628e42880c15717248e3e, type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 2731847666348560380, guid: 58d784a71e1628e42880c15717248e3e, type: 3}
+      propertyPath: moveSpeed
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 2731847666348560383, guid: 58d784a71e1628e42880c15717248e3e, type: 3}
       propertyPath: m_RootOrder
@@ -319,3 +325,8 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 58d784a71e1628e42880c15717248e3e, type: 3}
+--- !u!1 &1782234108 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2731847666348560378, guid: 58d784a71e1628e42880c15717248e3e, type: 3}
+  m_PrefabInstance: {fileID: 1305649867}
+  m_PrefabAsset: {fileID: 0}
