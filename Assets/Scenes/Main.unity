@@ -249,7 +249,7 @@ MonoBehaviour:
   mapDepthInTiles: 10
   tilePrefab: {fileID: 6322903469593028105, guid: 2f020166ef04cae4bad76b88ada1ac75, type: 3}
   player: {fileID: 1782234108}
-  generateRadius: 8
+  generateRadius: 16
 --- !u!4 &1240365349
 Transform:
   m_ObjectHideFlags: 0

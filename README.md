@@ -64,3 +64,12 @@ Generalizing this to a larger list of tiles and iterating through to generate:
 
 <img src="./screenshots/4-17_7.PNG" width="500px">
 
+### 4/19/20: 1pm - 2:45pm (1.75h)
+Worked on:
+- Generate chunks relative to what's close to the player (via a defined variable `chunkRadius`), rather than around the origin 
+- Converted chunk generation to a circle rather than a square to save work and be more in line with what players likely expect from similar games like Minecraft, etc. 
+- Cull chunks (via Destroy()) that become too far from the player (more than `chunkRadius` away)
+
+Generate chunks in radius around player: 
+
+<img src="./screenshots/4-19_1.PNG" width="500px">

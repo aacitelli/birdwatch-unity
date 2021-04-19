@@ -21,8 +21,8 @@ public class TerrainManager : MonoBehaviour
 
     void Update() 
     {
-        GenerateChunks();
-        CullChunks();
+        GenerateChunks(); // Generate ungenerated, in-range chunks
+        CullChunks(); // Destroy generated, out-of-range chunks 
     }
 
     void GenerateChunks()
@@ -74,7 +74,7 @@ public class TerrainManager : MonoBehaviour
     }
 
     // Removes elements 
-    // TODO: Unload, but do not completely get rid of, chunks that are not within range 
+    // TODO: Probably more efficient to change camera render distance and Unity will automatally "unload" GameObjects without having to regenerate them when we get back in range 
     void CullChunks()
     {
         Vector3 tileSize = tilePrefab.GetComponent<MeshRenderer>().bounds.size;
