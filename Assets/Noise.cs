@@ -13,15 +13,16 @@ public class Wave
 
 public class Noise : MonoBehaviour
 {
-    public float[,] GenerateNoiseMap(int mapDepth, int mapWidth, float scale, float offsetX, float offsetZ, Wave[] waves)
+    // Generates a dictionary with a <Coords, Noise Value> pair for each one inside a chunk 
+    public Dictionary<Vector2, float> GenerateNoiseMap(int mapDepth, int mapWidth, float scale, float offsetX, float offsetZ, Wave[] waves)
     {
-        float[,] noiseMap = new float[mapDepth, mapWidth];
+        Dictionary<Vector2, float> noiseMap = new Dictionary<Vector2, float>();
         for (int zIndex = 0; zIndex < mapDepth; zIndex++)
         {
             for (int xIndex = 0; xIndex < mapWidth; xIndex++)
             {
                 float sampleX = (xIndex + offsetX) / scale;
-                float sampleZ = (zIndex + offsetZ) / scale;
+                float sampleZ = (zIndex + offsetZ) / scale; 
 
                 float noise = 0f;
                 float normalization = 0f;
@@ -33,7 +34,7 @@ public class Noise : MonoBehaviour
 
                 // Normalize to [0, 1] by saving the amplification we did 
                 noise /= normalization;
-                noiseMap[zIndex, xIndex] = noise;
+                noiseMap[new Vector2(xIndex, zIndex)] = noise;
             }
         }
         return noiseMap;

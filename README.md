@@ -15,14 +15,17 @@
 - Chunk-Based Heightmap Generation & Rendering
     - Based on [this tutorial](https://gamedevacademy.org/complete-guide-to-procedural-level-generation-in-unity-part-1/).
     - Note that, for Lab 2, I personally opted to make a maze, so this is a lot of new work for me rather than a reuse of old work. 
+    - Note that the "load around the player" and "cull chunks too far from the player" are entirely of my own design; didn't follow a tutorial or anything for those. 
+- Secondary Biomes
+    - Biomes are chosen based on three perlin maps - height, heat, and moisture. 
 
 ## Timeline
-### 4/6/20: 12pm - 12:30pm (.5h)
+### 4/6/21: 12pm - 12:30pm (.5h)
 Worked on: 
 - Player Movement
 - Heightmap Generation
     
-### 4/17/20: 3:15pm - 4:30pm (1.25h)
+### 4/17/21: 3:15pm - 4:30pm (1.25h)
 Worked on: 
 - Improving Documentation
 - Fix Heightmap Generation; was broken coming into today 
@@ -51,7 +54,7 @@ Makes the landscape look more realistic and flattens out the water some:
 
 <img src="./screenshots/4-17_4.PNG" width="500px">
 
-### 4/17/20: 7:15pm - 8:15pm (1h)
+### 4/17/21: 7:15pm - 8:15pm (1h)
 Worked on: 
 - Expand terrain generation to more than just one tile / "chunk" 
 - Automate system to a generalized number of tiles (eventually working towards generating in radius around the player)
@@ -64,7 +67,7 @@ Generalizing this to a larger list of tiles and iterating through to generate:
 
 <img src="./screenshots/4-17_7.PNG" width="500px">
 
-### 4/19/20: 1pm - 2:45pm (1.75h)
+### 4/19/21: 1pm - 2:45pm (1.75h)
 Worked on:
 - Generate chunks relative to what's close to the player (via a defined variable `chunkRadius`), rather than around the origin 
 - Converted chunk generation to a circle rather than a square to save work and be more in line with what players likely expect from similar games like Minecraft, etc. 
@@ -73,3 +76,15 @@ Worked on:
 Generate chunks in radius around player: 
 
 <img src="./screenshots/4-19_1.PNG" width="500px">
+
+## 4/21/21: 12:15am - X:XXpm (X.XXh)
+Worked on:
+- Stopping Unity from blending the mesh; going for low-poly flat shaded, not color blends 
+
+Turns out the way I initially set it up essentially assigned one color to each vertex. However, because most vertices were shared by several triangles, each triangle was automatically blended in some weird way that shaded between the colors, rather than a smooth shade.
+
+To fix this, I worked on a way to convert the `vertices` and `triangles` array of the mesh object for each chunk to a triplet of vertices for each triangle, rather than sharing any. The usual term for this is shared vs. non-shared vertices. After this, the `triangles` array is just `[0 1 2 3 ...]` with no repeats. 
+
+However, this didn't work correctly first try, and I'm done for the night. Here's where I stopped off, with many heights not getting applied correctly and the entire thing just in a bit of disarray: 
+
+<img src="./screenshots/4-20_1.PNG" width="500px">
