@@ -41,6 +41,7 @@ public class ChunkGen : MonoBehaviour
     [SerializeField]
     private Wave[] waves;
 
+    // Holds the Vector2 local coordinate of every vertex in the mesh.vertices array 
     void GenerateChunk()
     {
         // Get a list of the square vertices 
@@ -57,16 +58,15 @@ public class ChunkGen : MonoBehaviour
         float offsetZ = -this.gameObject.transform.position.z;
         Dictionary<Vector2, float> heightMap = this.noise.GenerateNoiseMap(chunkDepth, chunkWidth, this.mapScale, offsetX, offsetZ, waves);
 
-        // Update vertex heights
+        // Update vertex heights and colors 
         UpdateMeshVertices(heightMap);
-
-        // Vertices 
     }
 
     // Converts the vertex representation of the mesh to non-shared vertices 
+    private Vector2[] localVertexCoordinates; // Same length as mesh.vertices, but stores their chunk-specific subdivide ("local") coordinates 
     void UpdateTriangles()
     {
-        // Utility method
+        // Essentially a Vector3 deep copy 
         Vector3 CopyVector3(Vector3 v)
         {
             return new Vector3(v.x, v.y, v.z);
@@ -77,6 +77,9 @@ public class ChunkGen : MonoBehaviour
         int newVerticesPos = 0;
         Vector3[] newVertices = new Vector3[(int) Mathf.Pow(width, 2) * 6];
 
+        // We recalculate these 
+        localVertexCoordinates = new Vector2[newVertices.Length];
+
         // Iterate through each vertex
         for (int row = 0; row < width - 1; row++)
         {
@@ -85,26 +88,29 @@ public class ChunkGen : MonoBehaviour
                 // Grab references to the vertices that will matter for us here 
                 // Note that for loop conditions will stop us from hitting a bounds check 
                 Vector3 currentVertex = this.meshFilter.mesh.vertices[row * width + col];
-                // print("currentVertex: " + currentVertex);
                 Vector3 rightVertex = this.meshFilter.mesh.vertices[row * width + (col + 1)];
-                // print("rightVertex: " + rightVertex);
                 Vector3 downVertex = this.meshFilter.mesh.vertices[(row + 1) * width + col];
-                // print("downVertex: " + downVertex);
                 Vector3 downRightVertex = this.meshFilter.mesh.vertices[(row + 1) * width + (col + 1)];
-                // print("downRightVertex: " + downRightVertex);
 
-                // End representation (assuming we are getting vertices for down-right box) should be:
+                // We have to make the order a little weird on these; normals are calculated based on vertices being specified clockwise, 
+                //     or something like that, which was the cause of half of my triangles being hidden (technically, shown from under the landscape)
                 // First triangle: this vertex, vertex one to the right, vertex one to the right and one down
-                newVertices[newVerticesPos] = CopyVector3(currentVertex); 
+                newVertices[newVerticesPos] = CopyVector3(downRightVertex);
+                localVertexCoordinates[newVerticesPos] = new Vector2(col + 1, row + 1);
                 newVertices[newVerticesPos + 1] = CopyVector3(rightVertex);
-                newVertices[newVerticesPos + 2] = CopyVector3(downRightVertex);
+                localVertexCoordinates[newVerticesPos + 1] = new Vector2(col + 1, row);
+                newVertices[newVerticesPos + 2] = CopyVector3(currentVertex);
+                localVertexCoordinates[newVerticesPos + 2] = new Vector2(col, row);
 
                 // Second triangle: this vertex, vertex one to the bottom, vertex one to the right and one down 
                 newVertices[newVerticesPos + 3] = CopyVector3(currentVertex); 
+                localVertexCoordinates[newVerticesPos + 3] = new Vector2(col, row);
                 newVertices[newVerticesPos + 4] = CopyVector3(downVertex);
+                localVertexCoordinates[newVerticesPos + 4] = new Vector2(col, row + 1);
                 newVertices[newVerticesPos + 5] = CopyVector3(downRightVertex);
+                localVertexCoordinates[newVerticesPos + 5] = new Vector2(col + 1, row + 1);
 
-                // Switch to calculating for next vertex
+                // Switch to calculating for next box subdivision inside the chunk 
                 newVerticesPos += 6;
             }
         }
@@ -129,45 +135,6 @@ public class ChunkGen : MonoBehaviour
         this.meshFilter.mesh.uv = uvs;
     }
 
-    /*
-    private Texture2D BuildTexture(float[,] heightMap)
-    {
-        int chunkDepth = heightMap.GetLength(0);
-        int chunkWidth = heightMap.GetLength(1);
-        // print("Depth: " + chunkDepth);
-        // print("Width: " + chunkWidth);
-
-        // Get a color for each vertex based on its noise value, basically 
-        Color[] colorMap = new Color[chunkDepth * chunkWidth];
-        for (int zIndex = 0; zIndex < chunkDepth; zIndex++)
-        {
-            for (int xIndex = 0; xIndex < chunkWidth; xIndex++)
-            {
-                // Get height 
-                int colorIndex = zIndex * chunkWidth + xIndex;
-                float height = heightMap[zIndex, xIndex];
-
-                // Instead of lerping from white to black, set color based on heightmap value 
-                TerrainType terrainType = ChooseTerrainType(height);
-                colorMap[colorIndex] = terrainType.color;
-            }
-        }
-
-        // Set a Texture2D to the color map we just generated 
-        Texture2D tileTexture = new Texture2D(chunkWidth, chunkDepth);
-        tileTexture.wrapMode = TextureWrapMode.Clamp;
-        tileTexture.SetPixels(colorMap);
-        tileTexture.Apply();
-
-        // byte[] bytes = tileTexture.EncodeToPNG();
-        // var dirPath = "C:\\Users\\aacit\\Downloads";
-        // File.WriteAllBytes(dirPath + "Image" + ".png", bytes);
-        // print("Writing to " + dirPath + "Image" + ".png");
-
-        return tileTexture;
-    }
-    */    
-
     // How "vertical" we want our map to be. Lower values will result in less extreme highs and lows and will generally make slopes smoother.
     [SerializeField]
     private float heightMultiplier; 
@@ -182,21 +149,27 @@ public class ChunkGen : MonoBehaviour
         int tileDepth = (int) Mathf.Sqrt(heightMap.Count);
         int tileWidth = tileDepth;
         Vector3[] meshVertices = this.meshFilter.mesh.vertices;
+        Color[] colors = new Color[meshVertices.Length];
 
-        // Access data from our mesh and update heights accordingly 
+        // Need a way to map the vertices to their subdivision values 
+        Bounds chunkBounds = this.meshFilter.mesh.bounds;
         int vertexIndex = 0;
-        for (int zIndex = 0; zIndex < tileDepth; zIndex++)
+        for (int i = 0; i < meshVertices.Length; i++)
         {
-            for (int xIndex = 0; xIndex < tileDepth; xIndex++)
-            {
-                float height = heightMap[new Vector2(xIndex, zIndex)];
-                Vector3 vertex = meshVertices[vertexIndex];
-                meshVertices[vertexIndex] = new Vector3(vertex.x, this.heightCurve.Evaluate(height) * this.heightMultiplier, vertex.z);
-                vertexIndex++;
-            }
+            // Update mesh height 
+            Vector3 vertex = meshVertices[i];
+            float height = heightMap[localVertexCoordinates[i]];
+            meshVertices[vertexIndex] = new Vector3(vertex.x, this.heightCurve.Evaluate(height) * this.heightMultiplier, vertex.z);
+            vertexIndex++;
+
+            // Update mesh colors 
+            TerrainType terrainType = ChooseTerrainType(height);
+            colors[i] = terrainType.color;
+            print("colors[i]: " + colors[i]);
         }
 
         // Update actual mesh properties; basically "apply" the heights to the mesh 
+        this.meshFilter.mesh.colors = colors; // Apply color
         this.meshFilter.mesh.vertices = meshVertices;
         this.meshFilter.mesh.RecalculateBounds();
         this.meshFilter.mesh.RecalculateNormals();
